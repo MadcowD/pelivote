@@ -1,0 +1,23 @@
+{
+	"name": "pelivote",
+	"manifest_version": 2,
+	"version": "1.0",
+	"description": "votes for the pelicants",
+	"browser_action": {
+		"default_title": "pelivote",
+		"popup": "popup.html"
+	},
+	"background": {
+		"scripts": ["background.js"]
+	},
+	"browser_action":{
+		"default_title": "pelivote"
+	},
+	"permissions": [
+		"cookies",
+		"background",
+		"tabs",
+		"http://*/*",
+		"https://*/*"
+	]
+}
