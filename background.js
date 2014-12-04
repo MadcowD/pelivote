@@ -3,7 +3,7 @@
 
 
 //clears the cookies on gorilla :)
-function clearGorillaCookies(tab){
+function clearCookies(tab, cb){
 	console.log("taking cookies out of the cookie jar");
 
 	chrome.cookies.getAll({'url': 'http://www.gorillamusic.com'}, function(cookies){
@@ -18,13 +18,13 @@ function clearGorillaCookies(tab){
 
 
 		//Now let's register an account!
-		registerAccount(tab);
+		cb();
 
 	});
 }
 
 //registers an account
-function registerAccount(tab){
+function register(tab, cb){
 	//change the page bro
 	chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/register/'},
 		function(registerTab){
@@ -34,13 +34,13 @@ function registerAccount(tab){
 				//Finally let's vote for the pelicant's
 				setTimeout(function(){
 				    //after 10 seconds call the vote function
-				    vote(tab);
+				    cb();
 				}, 25000);
 			});
 	});	
 }
 
-function vote(tab){
+function vote(tab, cb){
 	//change the page bro
 	chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/?contestants=the-pelicants'},
 		function(registerTab){
@@ -50,14 +50,35 @@ function vote(tab){
 			 {code: 'document.getElementById("vote10057").click();'},
 			 function(res){
 				console.log("finished");
-				count++;
-				if(count < 100)
+				
 				setTimeout(function(){
-						clearGorillaCookies(tab);
+						cb();
 				}, 5000);
 
 			 });
 	});	
+}
+
+
+function vote(n, tab){
+	var iterator = 0;
+	var voteoperation = 
+		//clear cookies
+		function(tab, loop){
+			clearCookies(tab, function(){
+				register(tab, function(){
+					vote(tab, function(){
+						if(iterator < n){
+							iterator++;
+							loop(tab, loop);
+						}
+					})
+				})	
+			})
+		};
+
+	voteoperation(tab, voteoperation);
+
 }
 
 var count = 0;
@@ -70,7 +91,7 @@ function click(e){
 		var re = /.*gorilla/;
 		if(re.test(tab.url)){
 			//Time to clear those cookies!
-			clearGorillaCookies(tab);
+			vote(170, tab);
 		}
 		else
 			chrome.tabs.executeScript({
