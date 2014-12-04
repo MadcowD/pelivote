@@ -40,7 +40,7 @@ function register(tab, cb){
 	});	
 }
 
-function vote(tab, cb){
+function castVote(tab, cb){
 	//change the page bro
 	chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/?contestants=the-pelicants'},
 		function(registerTab){
@@ -67,7 +67,7 @@ function vote(n, tab){
 		function(tab, loop){
 			clearCookies(tab, function(){
 				register(tab, function(){
-					vote(tab, function(){
+					castVote(tab, function(){
 						if(iterator < n){
 							iterator++;
 							loop(tab, loop);
@@ -81,7 +81,7 @@ function vote(n, tab){
 
 }
 
-var count = 0;
+
 function click(e){
 	console.log("background.js : click()");
 	//get the current tab.
