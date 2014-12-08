@@ -16,7 +16,7 @@ function clearCookies(tab, cb){
 
 		});
 
-
+                                      
 		//Now let's register an account!
 		cb();
 
@@ -25,19 +25,43 @@ function clearCookies(tab, cb){
 
 //registers an account
 function register(tab, cb){
-	//change the page bro
-	chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/register/'},
-		function(registerTab){
-			console.log("registering");
-			//Let's fill in the page now with some cool stuff!
-			chrome.tabs.executeScript(registerTab.id, {file: 'register.js'}, function(res){
+	$.getJSON( "http://pelicounts.herokuapp.com/get", function( data ) {
+		console.log("json recieved");
+		console.log(data);
+
+		var finished = 						
+			function(res){
 				//Finally let's vote for the pelicant's
 				setTimeout(function(){
 				    //after 10 seconds call the vote function
+				    console.log("Worked lol");
 				    cb();
 				}, 25000);
-			});
-	});	
+			};
+
+		//registration.
+		if(data.isNew == true)
+			chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/register/'},
+				function(registerTab){
+					console.log("registering");
+					var update = 'document.getElementById("user_login").value="'+data.account.username.toString()+'";';
+					update+= 'document.getElementById("user_email").value="'+data.account.email.toString()+'";';
+					update+= 'document.getElementById("pass1").value="'+data.account.password.toString()+'";';
+					update+= 'document.getElementById("pass2").value="'+data.account.password.toString()+'";';
+					update+= 'document.getElementById("wp-submit").click();';
+					chrome.tabs.executeScript(registerTab.id, {code:update},finished)});	
+		else
+			chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/login/'},
+				function(registerTab){
+					console.log("registering");
+					var update = 'setTimeout(function(){document.getElementById("user_login").value="'+data.account.username.toString()+'";';
+					update+= 'document.getElementById("user_pass").value="'+data.account.password.toString()+'";';
+					update+= 'document.getElementById("wp-submit").click();},1000);';
+					chrome.tabs.executeScript(registerTab.id, {code:update},finished)});	
+
+		
+	});
+	//change the page bro
 }
 
 function castVote(tab, cb){
@@ -53,7 +77,7 @@ function castVote(tab, cb){
 				
 				setTimeout(function(){
 						cb();
-				}, 5000);
+				}, 10000);
 
 			 });
 	});	
