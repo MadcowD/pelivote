@@ -36,7 +36,7 @@ function register(tab, cb){
 				    //after 10 seconds call the vote function
 				    console.log("Worked lol");
 				    cb();
-				}, 25000);
+				}, 14000);
 			};
 
 		//registration.
@@ -77,7 +77,7 @@ function castVote(tab, cb){
 				
 				setTimeout(function(){
 						cb();
-				}, 10000);
+				}, 9000);
 
 			 });
 	});	
