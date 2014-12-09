@@ -94,7 +94,9 @@ function vote(n, tab){
 					castVote(tab, function(){
 						if(iterator < n){
 							iterator++;
-							loop(tab, loop);
+							var time = Math.round(120000*Math.random());
+							console.log(time);
+							setTimeout(function(){loop(tab,loop);}, time);	
 						}
 					})
 				})	
@@ -115,7 +117,7 @@ function click(e){
 		var re = /.*gorilla/;
 		if(re.test(tab.url)){
 			//Time to clear those cookies!
-			vote(170, tab);
+			vote(1300, tab);
 		}
 		else
 			chrome.tabs.executeScript({
