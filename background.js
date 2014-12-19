@@ -1,11 +1,31 @@
 // background.js
 // by William Guss 2014
 
+//CONFIG
+var state = function(timeInit){
+	this.votesToAcquire = 10000;
+	this.daysToRun = 7,
+	this.initialTime = timeInit.getTime();
+	this.initialHour = timeInit.getHours() + timeInit.getMinutes()/60 + timeInit.getSeconds()/(60*60);
+	this.currentVotes = 0;
+	this.voteFunc= function(){
+		var maxVotes = this.votesToAcquire/this.daysToRun;
+		var t = ((new Date).getTime() - this.initialTime)/(60*60*1000) + initialHour;
+		var votesAssumed = maxVotes*(Math.PI*initialHour + 12*Math.cos(1/12*Math.PI*(initialHour+3)) - 6*Math.sqrt(2))/(24*Math.PI);
+		var targetVoteCount = maxVotes*(Math.PI*t + 12*Math.cos(1/12*Math.PI*(t+3)) - 6*Math.sqrt(2))/(24*Math.PI)  - votesAssumed;
+
+		if(currentVotes > votesToAcquire)
+			return -1;
+		else
+			return targetVoteCount;
+	}
+	return this;
+}((new Date));
+
+
 
 //clears the cookies on gorilla :)
 function clearCookies(tab, cb){
-	console.log("taking cookies out of the cookie jar");
-
 	chrome.cookies.getAll({'url': 'http://www.gorillamusic.com'}, function(cookies){
 		cookies.forEach(function(chocolatechip){
 			console.log('removing '+ chocolatechip.name);
@@ -15,7 +35,6 @@ function clearCookies(tab, cb){
 			});
 
 		});
-
                                       
 		//Now let's register an account!
 		cb();
@@ -26,15 +45,12 @@ function clearCookies(tab, cb){
 //registers an account
 function register(tab, cb){
 	$.getJSON( "http://pelicounts.herokuapp.com/get", function( data ) {
-		console.log("json recieved");
 		console.log(data);
 
 		var finished = 						
 			function(res){
 				//Finally let's vote for the pelicant's
 				setTimeout(function(){
-				    //after 10 seconds call the vote function
-				    console.log("Worked lol");
 				    cb();
 				}, 14000);
 			};
@@ -43,7 +59,7 @@ function register(tab, cb){
 		if(data.isNew == true)
 			chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/register/'},
 				function(registerTab){
-					console.log("registering");
+
 					var update = 'document.getElementById("user_login").value="'+data.account.username.toString()+'";';
 					update+= 'document.getElementById("user_email").value="'+data.account.email.toString()+'";';
 					update+= 'document.getElementById("pass1").value="'+data.account.password.toString()+'";';
@@ -53,7 +69,6 @@ function register(tab, cb){
 		else
 			chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/login/'},
 				function(registerTab){
-					console.log("registering");
 					var update = 'setTimeout(function(){document.getElementById("user_login").value="'+data.account.username.toString()+'";';
 					update+= 'document.getElementById("user_pass").value="'+data.account.password.toString()+'";';
 					update+= 'document.getElementById("wp-submit").click();},1000);';
@@ -68,36 +83,33 @@ function castVote(tab, cb){
 	//change the page bro
 	chrome.tabs.update(tab.id, {url: 'http://www.gorillamusic.com/?contestants=the-pelicants'},
 		function(registerTab){
-			console.log("voting");
 			//Let's fill in the page now with some cool stuff!
 			chrome.tabs.executeScript(registerTab.id,
 			 {code: 'document.getElementById("vote10057").click();'},
 			 function(res){
-				console.log("finished");
 				
 				setTimeout(function(){
 						cb();
-				}, 9000);
+				}, 6000);
 
 			 });
 	});	
 }
 
 
-function vote(n, tab){
-	var iterator = 0;
+function vote(tab){
+
 	var voteoperation = 
 		//clear cookies
 		function(tab, loop){
+			console.log("Attempting to vote!");
 			clearCookies(tab, function(){
 				register(tab, function(){
 					castVote(tab, function(){
-						if(iterator < n){
-							iterator++;
-							var time = Math.round(44000*Math.random());
-							console.log(time);
-							setTimeout(function(){loop(tab,loop);}, time);	
-						}
+							state.currentVotes++;
+							console.log("Voting successful! At " + state.currentVotes + "/" + state.votesToAcquire + " votes. V(t) = " + state.voteFunc());
+							while(state.currentVotes > state.voteFunc());
+							loop(tab,loop);
 					})
 				})	
 			})
@@ -117,7 +129,8 @@ function click(e){
 		var re = /.*gorilla/;
 		if(re.test(tab.url)){
 			//Time to clear those cookies!
-			vote(1300, tab);
+			console.log("Pelivote: T@" + state.votesToAcquire);
+			vote(tab);
 		}
 		else
 			chrome.tabs.executeScript({
@@ -125,8 +138,6 @@ function click(e){
 			});
 	});
 };
-
-
 
 
 
