@@ -94,7 +94,7 @@ function vote(n, tab){
 					castVote(tab, function(){
 						if(iterator < n){
 							iterator++;
-							var time = Math.round(120000*Math.random());
+							var time = Math.round(44000*Math.random());
 							console.log(time);
 							setTimeout(function(){loop(tab,loop);}, time);	
 						}
